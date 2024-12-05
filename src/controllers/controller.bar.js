@@ -519,6 +519,7 @@ BarController.defaults = {
 	dataElementOptions: [
 		'backgroundColor',
 		'borderColor',
+		'borderRadius',
 		'borderSkipped',
 		'borderWidth',
 		'barPercentage',

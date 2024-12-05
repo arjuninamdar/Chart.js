@@ -64,6 +64,34 @@ export function toTRBL(value) {
 	};
 }
 
+
+/**
+ * Converts the given value into a radius object.
+ * @param {number|object} value - If a number, set the value to all components,
+ *  else, if an object, use defined properties and sets undefined ones to 0.
+ * @returns {object} The radius values (topLeft, topRight, bottomLeft, bottomRight)
+ * @since 3.0.1
+ */
+export function toRadiusObject(value) {
+	let topLeft, topRight, bottomLeft, bottomRight;
+
+	if (isObject(value)) {
+		topLeft = numberOrZero(value.topLeft);
+		topRight = numberOrZero(value.topRight);
+		bottomLeft = numberOrZero(value.bottomLeft);
+		bottomRight = numberOrZero(value.bottomRight);
+	} else {
+		topLeft = topRight = bottomLeft = bottomRight = numberOrZero(value);
+	}
+
+	return {
+		topLeft,
+		topRight,
+		bottomLeft,
+		bottomRight
+	};
+}
+
 /**
  * Converts the given value into a padding object with pre-computed width/height.
  * @param {number|object} value - If a number, set the value to all TRBL component,

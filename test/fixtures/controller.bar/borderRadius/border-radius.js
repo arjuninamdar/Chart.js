@@ -1,5 +1,5 @@
 module.exports = {
-	threshold: 0.3,
+	threshold: 0.01,
 	config: {
 		type: 'bar',
 		data: {
@@ -8,12 +8,14 @@ module.exports = {
 				{
 					// option in dataset
 					data: [0, 5, 10, null, -10, -5],
-					borderWidth: 2
+					borderWidth: 2,
+					borderRadius: 5
 				},
 				{
 					// option in element (fallback)
 					data: [0, 5, 10, null, -10, -5],
-					borderSkipped: false
+					borderSkipped: false,
+					borderRadius: Number.MAX_VALUE
 				}
 			]
 		},

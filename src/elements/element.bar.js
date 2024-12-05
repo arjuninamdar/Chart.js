@@ -1,5 +1,5 @@
 import Element from '../core/core.element';
-import {toTRBL} from '../helpers/helpers.options';
+import { toTRBL, toRadiusObject } from '../helpers/helpers.options';
 
 /**
  * Helper function to get the bounds of the bar regardless of the orientation
@@ -81,24 +81,53 @@ function parseBorderWidth(bar, maxW, maxH) {
 	};
 }
 
+function getBorderRadius(bar, width, height, borderWidth) {
+	const radius = bar.options.borderRadius;
+	const maximumRadius = Math.min(width, height) / 2;
+	const o = toRadiusObject(radius);
+	const skip = parseBorderSkipped(bar);
+
+	const outerRadius = [
+		skipOrLimit(skip.top || skip.left, o.topLeft, 0, maximumRadius),
+		skipOrLimit(skip.right || skip.top, o.topRight, 0, maximumRadius),
+		skipOrLimit(skip.bottom || skip.right, o.bottomRight, 0, maximumRadius),
+		skipOrLimit(skip.bottom || skip.left, o.bottomLeft, 0, maximumRadius)
+	];
+
+	const innerRadius = [
+		Math.max(outerRadius[0] - Math.max(borderWidth.l, borderWidth.t), 0),
+		Math.max(outerRadius[1] - Math.max(borderWidth.r, borderWidth.t), 0),
+		Math.max(outerRadius[2] - Math.max(borderWidth.r, borderWidth.b), 0),
+		Math.max(outerRadius[3] - Math.max(borderWidth.l, borderWidth.b), 0)
+	];
+
+	return {
+		outerRadius,
+		innerRadius
+	};
+}
+
 function boundingRects(bar) {
 	const bounds = getBarBounds(bar);
 	const width = bounds.right - bounds.left;
 	const height = bounds.bottom - bounds.top;
 	const border = parseBorderWidth(bar, width / 2, height / 2);
+	const {outerRadius, innerRadius} = getBorderRadius(bar, width, height, border);
 
 	return {
 		outer: {
 			x: bounds.left,
 			y: bounds.top,
 			w: width,
-			h: height
+			h: height,
+			radius: outerRadius
 		},
 		inner: {
 			x: bounds.left + border.l,
 			y: bounds.top + border.t,
 			w: width - border.l - border.r,
-			h: height - border.t - border.b
+			h: height - border.t - border.b,
+			radius: innerRadius
 		}
 	};
 }
@@ -138,15 +167,17 @@ export default class BarElement extends Element {
 
 		if (outer.w !== inner.w || outer.h !== inner.h) {
 			ctx.beginPath();
-			ctx.rect(outer.x, outer.y, outer.w, outer.h);
+			ctx.roundRect(outer.x, outer.y, outer.w, outer.h, outer.radius);
 			ctx.clip();
-			ctx.rect(inner.x, inner.y, inner.w, inner.h);
+			ctx.roundRect(inner.x, inner.y, inner.w, inner.h, inner.radius);
 			ctx.fillStyle = options.borderColor;
 			ctx.fill('evenodd');
 		}
 
+		ctx.beginPath();
+		ctx.roundRect(inner.x, inner.y, inner.w, inner.h, inner.radius);
 		ctx.fillStyle = options.backgroundColor;
-		ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
+		ctx.fill();
 
 		ctx.restore();
 	}
@@ -183,7 +214,8 @@ BarElement.id = 'bar';
  */
 BarElement.defaults = {
 	borderSkipped: 'start',
-	borderWidth: 0
+	borderWidth: 0,
+	borderRadius: 0
 };
 
 /**
