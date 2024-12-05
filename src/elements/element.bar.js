@@ -1,5 +1,5 @@
 import Element from '../core/core.element';
-import { toTRBL, toRadiusObject } from '../helpers/helpers.options';
+import {toTRBL, toRadiusObject} from '../helpers/helpers.options';
 
 /**
  * Helper function to get the bounds of the bar regardless of the orientation
